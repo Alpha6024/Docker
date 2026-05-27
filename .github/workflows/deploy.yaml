@@ -1,0 +1,39 @@
+name: Docker CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Login to Docker Hub
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      # Step 3: Build Frontend Image
+      - name: Build Frontend Image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/dockertodo-frontend:latest ./design
+
+      # Step 4: Build Backend Image
+      - name: Build Backend Image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/dockertodo-backend:latest ./backend
+
+      # Step 5: Push Frontend Image
+      - name: Push Frontend Image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/dockertodo-frontend:latest
+
+      # Step 6: Push Backend Image
+      - name: Push Backend Image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/dockertodo-backend:latest
